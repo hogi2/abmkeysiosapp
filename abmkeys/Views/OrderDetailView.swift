@@ -11,6 +11,8 @@ struct OrderDetailView: View {
     let orderId: Int
     @State private var orderDetails: OrderDetails?
     @State private var isLoading = true
+    @State private var showError = false
+    @State private var errorMessage = ""
 
     var body: some View {
         VStack {
@@ -25,27 +27,23 @@ struct OrderDetailView: View {
                             .padding(.bottom, 16)
                             .padding(.horizontal)
 
-                        // Customer Info Section
                         SectionView(header: "Customer Info") {
                             DetailRow(label: "Customer Name", value: details.customerName)
                             DetailRow(label: "Email", value: details.email)
                             DetailRow(label: "Phone", value: details.phone)
                         }
 
-                        // Billing Info Section
                         SectionView(header: "Billing Info") {
                             DetailRow(label: "Total", value: Double(details.total)?.formattedAsCurrency() ?? details.total)
                             DetailRow(label: "Status", value: details.status.capitalized)
                         }
 
-                        // Order Items Section
                         SectionView(header: "Order Items") {
                             ForEach(details.items) { item in
                                 OrderItemView(item: item)
                             }
                         }
 
-                        // Order Notes Section
                         if let notes = details.orderNotes, !notes.isEmpty {
                             SectionView(header: "Order Notes") {
                                 Text(notes)
@@ -62,19 +60,26 @@ struct OrderDetailView: View {
             }
         }
         .onAppear {
-            fetchOrderDetails()
+            Task {
+                await fetchOrderDetails()
+            }
         }
         .navigationTitle("Order #\(orderId.formatted())")
         .background(Color.backgroundColor.edgesIgnoringSafeArea(.all))
+        .alert(isPresented: $showError) {
+            Alert(title: Text("Error"), message: Text(errorMessage), dismissButton: .default(Text("OK")))
+        }
     }
 
-    private func fetchOrderDetails() {
-        WooCommerceService().getOrderDetails(orderId: orderId) { details in
-            DispatchQueue.main.async {
-                self.orderDetails = details
-                self.isLoading = false
-            }
+    @MainActor
+    private func fetchOrderDetails() async {
+        do {
+            orderDetails = try await WooCommerceService().getOrderDetails(orderId: orderId)
+        } catch {
+            showError = true
+            errorMessage = error.localizedDescription
         }
+        isLoading = false
     }
 }
 

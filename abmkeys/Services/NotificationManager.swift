@@ -5,7 +5,6 @@
 //  Created by Hogan Alkahlan on 7/1/24.
 //
 
-import Foundation
 import UserNotifications
 
 class NotificationManager {
@@ -22,6 +21,12 @@ class NotificationManager {
         content.sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: "earning.mp3"))
 
         let request = UNNotificationRequest(identifier: "\(orderId)", content: content, trigger: nil)
-        UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Error scheduling notification: \(error)")
+            } else {
+                print("Notification scheduled for order \(orderId)")
+            }
+        }
     }
 }

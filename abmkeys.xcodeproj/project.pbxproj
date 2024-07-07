@@ -34,6 +34,9 @@
 		807FBD782C321361001BDBDA /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807FBD772C321361001BDBDA /* LoadingView.swift */; };
 		807FBD802C32E686001BDBDA /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807FBD7F2C32E686001BDBDA /* Extensions.swift */; };
 		80AD03CB2C3AFAFA006FB6CD /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 80AD03CA2C3AFAFA006FB6CD /* .gitignore */; };
+		80AD03D62C3B3D66006FB6CD /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80AD03D52C3B3D66006FB6CD /* LoginView.swift */; };
+		80AD03D82C3B3D71006FB6CD /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80AD03D72C3B3D71006FB6CD /* QRScannerView.swift */; };
+		80AD03DA2C3B3DF3006FB6CD /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80AD03D92C3B3DF3006FB6CD /* KeychainHelper.swift */; };
 		80B385E92C3548C000639F3A /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80B385E82C3548C000639F3A /* Models.swift */; };
 /* End PBXBuildFile section */
 
@@ -85,6 +88,9 @@
 		807FBD772C321361001BDBDA /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		807FBD7F2C32E686001BDBDA /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		80AD03CA2C3AFAFA006FB6CD /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		80AD03D52C3B3D66006FB6CD /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		80AD03D72C3B3D71006FB6CD /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
+		80AD03D92C3B3DF3006FB6CD /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
 		80B385E82C3548C000639F3A /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -141,6 +147,7 @@
 		807FBD262C31DDE8001BDBDA /* abmkeys */ = {
 			isa = PBXGroup;
 			children = (
+				80AD03D42C3B3D60006FB6CD /* Login */,
 				80B385E72C3548B700639F3A /* Models */,
 				807FBD272C31DDE8001BDBDA /* abmkeysApp.swift */,
 				807FBD832C34B162001BDBDA /* Views */,
@@ -215,6 +222,16 @@
 				807FBD7F2C32E686001BDBDA /* Extensions.swift */,
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		80AD03D42C3B3D60006FB6CD /* Login */ = {
+			isa = PBXGroup;
+			children = (
+				80AD03D52C3B3D66006FB6CD /* LoginView.swift */,
+				80AD03D72C3B3D71006FB6CD /* QRScannerView.swift */,
+				80AD03D92C3B3DF3006FB6CD /* KeychainHelper.swift */,
+			);
+			path = Login;
 			sourceTree = "<group>";
 		};
 		80B385E72C3548B700639F3A /* Models */ = {
@@ -373,6 +390,7 @@
 				807FBD742C3208B4001BDBDA /* ProductDetailView.swift in Sources */,
 				807FBD672C31E527001BDBDA /* Colors.swift in Sources */,
 				807FBD632C31E2ED001BDBDA /* CardView.swift in Sources */,
+				80AD03DA2C3B3DF3006FB6CD /* KeychainHelper.swift in Sources */,
 				807FBD5B2C31E292001BDBDA /* OrderListView.swift in Sources */,
 				807FBD782C321361001BDBDA /* LoadingView.swift in Sources */,
 				807FBD572C31DEF3001BDBDA /* WoocommerceService.swift in Sources */,
@@ -383,8 +401,10 @@
 				807FBD2A2C31DDE8001BDBDA /* ContentView.swift in Sources */,
 				807FBD282C31DDE8001BDBDA /* abmkeysApp.swift in Sources */,
 				807FBD762C320B71001BDBDA /* NotificationManager.swift in Sources */,
+				80AD03D82C3B3D71006FB6CD /* QRScannerView.swift in Sources */,
 				807FBD802C32E686001BDBDA /* Extensions.swift in Sources */,
 				80B385E92C3548C000639F3A /* Models.swift in Sources */,
+				80AD03D62C3B3D66006FB6CD /* LoginView.swift in Sources */,
 				807FBD652C31E391001BDBDA /* OrderCard.swift in Sources */,
 				807FBD612C31E2DD001BDBDA /* ProductCard.swift in Sources */,
 			);

@@ -4,129 +4,154 @@
 //
 //  Created by Hogan Alkahlan on 6/30/24.
 //
+
 import Foundation
 
 class WooCommerceService {
+    static var credentials: WooCommerceCredentials?
+
     let baseUrl = "https://www.abmkeys.com/wp-json/wc/v3"
-    let consumerKey = "ck_18453c71673b00be9945eff41029bf123128766a"
-    let consumerSecret = "cs_65f96799de7dd4bdb3b6fcaabc27d44d78b4251f"
 
-    func getOrders(page: Int, search: String, completion: @escaping ([Order]?) -> Void) {
-        guard let url = URL(string: "\(baseUrl)/orders?consumer_key=\(consumerKey)&consumer_secret=\(consumerSecret)&page=\(page)&search=\(search)") else {
-            completion(nil)
-            return
+    private func makeURL(endpoint: String, parameters: [String: String]) -> URL? {
+        guard let credentials = WooCommerceService.credentials else { return nil }
+
+        var urlComponents = URLComponents(string: "\(baseUrl)/\(endpoint)")
+        var queryItems = [
+            URLQueryItem(name: "consumer_key", value: credentials.consumerKey),
+            URLQueryItem(name: "consumer_secret", value: credentials.consumerSecret)
+        ]
+
+        for (key, value) in parameters {
+            queryItems.append(URLQueryItem(name: key, value: value))
         }
 
-        let task = URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let data = data, error == nil else {
-                print("Error fetching orders: \(error?.localizedDescription ?? "Unknown error")")
-                completion(nil)
-                return
-            }
-            let orders = try? JSONDecoder().decode([Order].self, from: data)
-            completion(orders)
-        }
-        task.resume()
+        urlComponents?.queryItems = queryItems
+        #if DEBUG
+        print("API URL: \(urlComponents?.url?.absoluteString ?? "Invalid URL")")
+        #endif
+        return urlComponents?.url
     }
 
-    func getProducts(page: Int, search: String, completion: @escaping ([Product]?) -> Void) {
-        guard let url = URL(string: "\(baseUrl)/products?consumer_key=\(consumerKey)&consumer_secret=\(consumerSecret)&page=\(page)&search=\(search)") else {
-            completion(nil)
-            return
+    private func logResponse(_ data: Data?, _ response: URLResponse?, _ error: Error?) {
+        #if DEBUG
+        if let error = error {
+            print("Error: \(error.localizedDescription)")
         }
-
-        let task = URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let data = data, error == nil else {
-                print("Error fetching products: \(error?.localizedDescription ?? "Unknown error")")
-                completion(nil)
-                return
-            }
-            let products = try? JSONDecoder().decode([Product].self, from: data)
-            completion(products)
+        if let httpResponse = response as? HTTPURLResponse {
+            print("HTTP Status Code: \(httpResponse.statusCode)")
         }
-        task.resume()
+        if let data = data, let jsonString = String(data: data, encoding: .utf8) {
+            print("Response data: \(jsonString)")
+        }
+        #endif
     }
 
-    func getProductDetails(productId: Int, completion: @escaping (ProductDetail?) -> Void) {
-        guard let url = URL(string: "\(baseUrl)/products/\(productId)?consumer_key=\(consumerKey)&consumer_secret=\(consumerSecret)") else {
-            completion(nil)
-            return
+    func getOrders(page: Int, search: String, status: String? = nil) async throws -> [Order] {
+        var parameters: [String: String] = ["page": "\(page)", "search": search]
+        if let status = status {
+            parameters["status"] = status
         }
 
-        let task = URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let data = data, error == nil else {
-                print("Error fetching product details: \(error?.localizedDescription ?? "Unknown error")")
-                completion(nil)
-                return
-            }
-            do {
-                let json = try JSONSerialization.jsonObject(with: data, options: [])
-                print("JSON Response: \(json)")
-                let details = try JSONDecoder().decode(ProductDetail.self, from: data)
-                completion(details)
-            } catch {
-                print("Error decoding product details: \(error.localizedDescription)")
-                completion(nil)
-            }
+        guard let url = makeURL(endpoint: "orders", parameters: parameters) else {
+            throw URLError(.badURL)
         }
-        task.resume()
+
+        let (data, response) = try await URLSession.shared.data(from: url)
+        logResponse(data, response, nil)
+
+        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+            throw URLError(.badServerResponse)
+        }
+
+        do {
+            let orders = try JSONDecoder().decode([Order].self, from: data)
+            return orders
+        } catch {
+            print("Failed to decode JSON for orders: \(error.localizedDescription)")
+            logResponse(data, response, error)
+            throw error
+        }
     }
 
-    func getOrderDetails(orderId: Int, completion: @escaping (OrderDetails?) -> Void) {
-        guard let url = URL(string: "\(baseUrl)/orders/\(orderId)?consumer_key=\(consumerKey)&consumer_secret=\(consumerSecret)") else {
-            completion(nil)
-            return
+    func getProducts(page: Int, search: String) async throws -> [Product] {
+        guard let url = makeURL(endpoint: "products", parameters: ["page": "\(page)", "search": search]) else {
+            throw URLError(.badURL)
         }
 
-        let task = URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let data = data, error == nil else {
-                print("Error fetching order details: \(error?.localizedDescription ?? "Unknown error")")
-                completion(nil)
-                return
-            }
-            do {
-                let json = try JSONSerialization.jsonObject(with: data, options: [])
-                print("JSON Response: \(json)")
-                let details = try JSONDecoder().decode(OrderDetails.self, from: data)
-                completion(details)
-            } catch {
-                print("Error decoding order details: \(error.localizedDescription)")
-                completion(nil)
-            }
+        let (data, response) = try await URLSession.shared.data(from: url)
+        logResponse(data, response, nil)
+
+        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+            throw URLError(.badServerResponse)
         }
-        task.resume()
+
+        do {
+            let products = try JSONDecoder().decode([Product].self, from: data)
+            return products
+        } catch {
+            print("Failed to decode JSON for products: \(error.localizedDescription)")
+            logResponse(data, response, error)
+            throw error
+        }
     }
 
-    func getDailySales(completion: @escaping (String?) -> Void) {
-        guard let url = URL(string: "\(baseUrl)/reports/sales?consumer_key=\(consumerKey)&consumer_secret=\(consumerSecret)&period=day") else {
-            completion(nil)
-            return
+    func getProductDetails(productId: Int) async throws -> ProductDetail {
+        guard let url = makeURL(endpoint: "products/\(productId)", parameters: [:]) else {
+            throw URLError(.badURL)
         }
 
-        let task = URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let data = data, error == nil else {
-                print("Error fetching sales data: \(error?.localizedDescription ?? "Unknown error")")
-                completion(nil)
-                return
-            }
-            if let salesReport = try? JSONDecoder().decode([SalesReport].self, from: data).first {
-                completion(salesReport.totalSales)
-            } else {
-                completion(nil)
-            }
+        let (data, response) = try await URLSession.shared.data(from: url)
+        logResponse(data, response, nil)
+
+        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+            throw URLError(.badServerResponse)
         }
-        task.resume()
+
+        do {
+            let productDetail = try JSONDecoder().decode(ProductDetail.self, from: data)
+            return productDetail
+        } catch {
+            print("Failed to decode JSON for product details: \(error.localizedDescription)")
+            logResponse(data, response, error)
+            throw error
+        }
     }
 
-    func checkForCompletedOrders(previousOrders: [Order]) {
-        getOrders(page: 1, search: "") { fetchedOrders in
-            guard let fetchedOrders = fetchedOrders else { return }
+    func getOrderDetails(orderId: Int) async throws -> OrderDetails {
+        guard let url = makeURL(endpoint: "orders/\(orderId)", parameters: [:]) else {
+            throw URLError(.badURL)
+        }
+
+        let (data, response) = try await URLSession.shared.data(from: url)
+        logResponse(data, response, nil)
+
+        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+            throw URLError(.badServerResponse)
+        }
+
+        do {
+            let orderDetails = try JSONDecoder().decode(OrderDetails.self, from: data)
+            return orderDetails
+        } catch {
+            print("Failed to decode JSON for order details: \(error.localizedDescription)")
+            logResponse(data, response, error)
+            throw error
+        }
+    }
+
+    func checkForCompletedOrders(previousOrders: [Order]) async throws {
+        do {
+            let fetchedOrders = try await getOrders(page: 1, search: "")
             let completedOrders = fetchedOrders.filter { $0.status == "completed" }
             let previousCompletedOrders = previousOrders.filter { $0.status == "completed" }
             let newCompletedOrders = completedOrders.filter { !previousCompletedOrders.contains($0) }
+
             for order in newCompletedOrders {
                 NotificationManager.shared.scheduleOrderCompletionNotification(orderId: order.id, orderTotal: order.total)
             }
+        } catch {
+            print("Error checking for completed orders: \(error)")
         }
     }
 }
+

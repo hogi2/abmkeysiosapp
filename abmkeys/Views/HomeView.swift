@@ -10,7 +10,6 @@ import SwiftUI
 struct HomeView: View {
     @Binding var orders: [Order]
     @Binding var latestProducts: [Product]
-    @Binding var dailySales: String
     @State private var selectedOrder: Order?
     @State private var selectedProduct: ProductDetail?
     @State private var showOrderDetail = false
@@ -41,18 +40,6 @@ struct HomeView: View {
                             .shadow(radius: 5)
                             .padding(.horizontal)
                         }
-                    }
-
-                    Section(header: Text("Daily Sales").font(.title).padding(.horizontal).foregroundColor(Color.textColor)) {
-                        Text(dailySales)
-                            .font(.headline)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.cardColor)
-                            .cornerRadius(10)
-                            .shadow(radius: 5)
-                            .padding(.horizontal)
-                            .padding(.vertical, 5)
                     }
 
                     Section(header: Text("Latest Products").font(.title).padding(.horizontal).foregroundColor(Color.textColor)) {
@@ -93,12 +80,15 @@ struct HomeView: View {
     }
 
     func fetchProductDetails(productId: Int) {
-        WooCommerceService().getProductDetails(productId: productId) { productDetail in
-            if let productDetail = productDetail {
+        Task {
+            do {
+                let productDetail = try await WooCommerceService().getProductDetails(productId: productId)
                 DispatchQueue.main.async {
                     self.selectedProduct = productDetail
                     self.showProductDetail = true
                 }
+            } catch {
+                print("Error fetching product details: \(error.localizedDescription)")
             }
         }
     }

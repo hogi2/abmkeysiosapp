@@ -4,84 +4,96 @@
 //
 //  Created by Hogan Alkahlan on 6/30/24.
 //
+
 import SwiftUI
 
 struct ContentView: View {
     @State private var orders: [Order] = []
     @State private var latestProducts: [Product] = []
-    @State private var dailySales: String = "No data"
     @State private var isLoading = true
+    @State private var showError = false
+    @State private var errorMessage = ""
 
     var body: some View {
-        if isLoading {
-            LoadingView()
+        Group {
+            if isLoading {
+                LoadingView()
+                    .onAppear {
+                        Task {
+                            await checkLoginAndFetchData()
+                        }
+                    }
+            } else {
+                TabView {
+                    HomeView(orders: $orders, latestProducts: $latestProducts)
+                        .tabItem {
+                            Label("Home", systemImage: "house")
+                        }
+
+                    OrderListView(orders: $orders)
+                        .tabItem {
+                            Label("Orders", systemImage: "list.bullet")
+                        }
+
+                    ProductView(products: $latestProducts)
+                        .tabItem {
+                            Label("Products", systemImage: "cart")
+                        }
+
+                    SettingsView()
+                        .tabItem {
+                            Label("Settings", systemImage: "gear")
+                        }
+                }
                 .onAppear {
-                    fetchData()
+                    Task {
+                        await checkForCompletedOrders()
+                    }
                 }
+            }
+        }
+        .alert(isPresented: $showError) {
+            Alert(title: Text("Error"), message: Text(errorMessage), dismissButton: .default(Text("OK")))
+        }
+    }
+
+    @MainActor
+    private func checkLoginAndFetchData() async {
+        if let credentials = KeychainHelper.getCredentials() {
+            WooCommerceService.credentials = credentials
+            await fetchData()
         } else {
-            TabView {
-                HomeView(orders: $orders, latestProducts: $latestProducts, dailySales: $dailySales)
-                    .tabItem {
-                        Label("Home", systemImage: "house")
-                    }
-
-                OrderListView(orders: $orders)
-                    .tabItem {
-                        Label("Orders", systemImage: "list.bullet")
-                    }
-
-                ProductView(products: $latestProducts)
-                    .tabItem {
-                        Label("Products", systemImage: "cart")
-                    }
-
-                SettingsView()
-                    .tabItem {
-                        Label("Settings", systemImage: "gear")
-                    }
+            if let window = UIApplication.shared.windows.first {
+                window.rootViewController = UIHostingController(rootView: LoginView())
+                window.makeKeyAndVisible()
             }
         }
     }
 
-    private func fetchData() {
-        let dispatchGroup = DispatchGroup()
+    @MainActor
+    private func fetchData() async {
+        isLoading = true
+        do {
+            async let fetchedOrders = WooCommerceService().getOrders(page: 1, search: "")
+            async let fetchedProducts = WooCommerceService().getProducts(page: 1, search: "")
 
-        dispatchGroup.enter()
-        WooCommerceService().getOrders(page: 1, search: "") { fetchedOrders in
-            if let fetchedOrders = fetchedOrders {
-                DispatchQueue.main.async {
-                    self.orders = fetchedOrders
-                }
-            }
-            dispatchGroup.leave()
+            orders = try await fetchedOrders
+            latestProducts = try await fetchedProducts
+        } catch {
+            showError = true
+            errorMessage = error.localizedDescription
         }
-
-        dispatchGroup.enter()
-        WooCommerceService().getProducts(page: 1, search: "") { fetchedProducts in
-            if let fetchedProducts = fetchedProducts {
-                DispatchQueue.main.async {
-                    self.latestProducts = fetchedProducts
-                }
-            }
-            dispatchGroup.leave()
-        }
-
-        dispatchGroup.enter()
-        WooCommerceService().getDailySales { sales in
-            DispatchQueue.main.async {
-                self.dailySales = sales ?? "No data"
-            }
-            dispatchGroup.leave()
-        }
-
-        dispatchGroup.notify(queue: .main) {
-            self.isLoading = false
-        }
+        isLoading = false
     }
-}
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
+    @MainActor
+    private func checkForCompletedOrders() async {
+        do {
+            let previousOrders = orders
+            try await WooCommerceService().checkForCompletedOrders(previousOrders: previousOrders)
+        } catch {
+            showError = true
+            errorMessage = error.localizedDescription
+        }
     }
 }
