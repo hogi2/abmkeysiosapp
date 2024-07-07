@@ -33,6 +33,7 @@
 		807FBD762C320B71001BDBDA /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807FBD752C320B71001BDBDA /* NotificationManager.swift */; };
 		807FBD782C321361001BDBDA /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807FBD772C321361001BDBDA /* LoadingView.swift */; };
 		807FBD802C32E686001BDBDA /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807FBD7F2C32E686001BDBDA /* Extensions.swift */; };
+		80AD03CB2C3AFAFA006FB6CD /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 80AD03CA2C3AFAFA006FB6CD /* .gitignore */; };
 		80B385E92C3548C000639F3A /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80B385E82C3548C000639F3A /* Models.swift */; };
 /* End PBXBuildFile section */
 
@@ -83,6 +84,7 @@
 		807FBD752C320B71001BDBDA /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		807FBD772C321361001BDBDA /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		807FBD7F2C32E686001BDBDA /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		80AD03CA2C3AFAFA006FB6CD /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		80B385E82C3548C000639F3A /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -117,6 +119,7 @@
 		807FBD1B2C31DDE8001BDBDA = {
 			isa = PBXGroup;
 			children = (
+				80AD03CA2C3AFAFA006FB6CD /* .gitignore */,
 				807FBD532C31DE4A001BDBDA /* cash_register.mp3 */,
 				807FBD262C31DDE8001BDBDA /* abmkeys */,
 				807FBD372C31DDEA001BDBDA /* abmkeysTests */,
@@ -338,6 +341,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				80AD03CB2C3AFAFA006FB6CD /* .gitignore in Resources */,
 				807FBD542C31DE4A001BDBDA /* cash_register.mp3 in Resources */,
 				807FBD2F2C31DDE9001BDBDA /* Preview Assets.xcassets in Resources */,
 				807FBD2C2C31DDE9001BDBDA /* Assets.xcassets in Resources */,
