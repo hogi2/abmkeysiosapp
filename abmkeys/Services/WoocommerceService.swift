@@ -33,15 +33,13 @@ class WooCommerceService {
         parameters.forEach { queryItems.append(URLQueryItem(name: $0.key, value: $0.value)) }
         urlComponents?.queryItems = queryItems
 
-        #if DEBUG
-        print("API URL: \(urlComponents?.url?.absoluteString ?? "Invalid URL")")
-        #endif
+        let finalURL = urlComponents?.url?.absoluteString ?? "Invalid URL"
+        print("API URL: \(finalURL)") // Add this line
 
         return urlComponents?.url
     }
 
     private func logResponse(_ data: Data?, _ response: URLResponse?, _ error: Error?) {
-        #if DEBUG
         if let error = error {
             print("Error: \(error.localizedDescription)")
         }
@@ -51,7 +49,6 @@ class WooCommerceService {
         if let data = data, let jsonString = String(data: data, encoding: .utf8) {
             print("Response data: \(jsonString)")
         }
-        #endif
     }
 
     private func fetchData<T: Decodable>(from url: URL) async throws -> T {
@@ -76,7 +73,7 @@ class WooCommerceService {
         if let status = status {
             parameters["status"] = status
         }
-        
+
         guard let url = makeURL(endpoint: .orders, parameters: parameters) else {
             throw URLError(.badURL)
         }

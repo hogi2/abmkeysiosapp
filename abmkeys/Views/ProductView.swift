@@ -46,6 +46,11 @@ struct ProductView: View {
                     secondaryButton: .cancel()
                 )
             }
+            .navigationDestination(isPresented: $showProductDetail) {
+                if let selectedProduct = selectedProduct {
+                    ProductDetailView(productDetail: selectedProduct)
+                }
+            }
         }
     }
 
@@ -82,12 +87,6 @@ struct ProductView: View {
                     ProgressView()
                         .padding()
                 }
-            }
-        }
-        .navigationTitle("All Products")
-        .navigationDestination(isPresented: $showProductDetail) {
-            if let selectedProduct = selectedProduct {
-                ProductDetailView(productDetail: selectedProduct)
             }
         }
     }

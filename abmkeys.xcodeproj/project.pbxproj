@@ -20,9 +20,7 @@
 		807FBD5B2C31E292001BDBDA /* OrderListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807FBD5A2C31E292001BDBDA /* OrderListView.swift */; };
 		807FBD5D2C31E2A8001BDBDA /* ProductView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807FBD5C2C31E2A8001BDBDA /* ProductView.swift */; };
 		807FBD5F2C31E2BB001BDBDA /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807FBD5E2C31E2BB001BDBDA /* SettingsView.swift */; };
-		807FBD612C31E2DD001BDBDA /* ProductCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807FBD602C31E2DD001BDBDA /* ProductCard.swift */; };
 		807FBD632C31E2ED001BDBDA /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807FBD622C31E2ED001BDBDA /* CardView.swift */; };
-		807FBD652C31E391001BDBDA /* OrderCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807FBD642C31E391001BDBDA /* OrderCard.swift */; };
 		807FBD672C31E527001BDBDA /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807FBD662C31E527001BDBDA /* Colors.swift */; };
 		807FBD6A2C31E5C6001BDBDA /* SwiftUICharts in Frameworks */ = {isa = PBXBuildFile; productRef = 807FBD692C31E5C6001BDBDA /* SwiftUICharts */; };
 		807FBD6C2C31E61E001BDBDA /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807FBD6B2C31E61E001BDBDA /* SearchBar.swift */; };
@@ -42,6 +40,7 @@
 		80AD03E52C3B6347006FB6CD /* FirebaseAnalyticsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 80AD03E42C3B6347006FB6CD /* FirebaseAnalyticsSwift */; };
 		80AD03E72C3B6347006FB6CD /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = 80AD03E62C3B6347006FB6CD /* FirebaseAnalyticsWithoutAdIdSupport */; };
 		80AD03E92C3B6347006FB6CD /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 80AD03E82C3B6347006FB6CD /* FirebaseAppCheck */; };
+		80AD03EF2C3EB946006FB6CD /* CardComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80AD03EE2C3EB946006FB6CD /* CardComponents.swift */; };
 		80B385E92C3548C000639F3A /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80B385E82C3548C000639F3A /* Models.swift */; };
 /* End PBXBuildFile section */
 
@@ -82,9 +81,7 @@
 		807FBD5A2C31E292001BDBDA /* OrderListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderListView.swift; sourceTree = "<group>"; };
 		807FBD5C2C31E2A8001BDBDA /* ProductView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductView.swift; sourceTree = "<group>"; };
 		807FBD5E2C31E2BB001BDBDA /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		807FBD602C31E2DD001BDBDA /* ProductCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCard.swift; sourceTree = "<group>"; };
 		807FBD622C31E2ED001BDBDA /* CardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
-		807FBD642C31E391001BDBDA /* OrderCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderCard.swift; sourceTree = "<group>"; };
 		807FBD662C31E527001BDBDA /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		807FBD6B2C31E61E001BDBDA /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
 		807FBD712C3206B7001BDBDA /* OrderDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderDetailView.swift; sourceTree = "<group>"; };
@@ -96,6 +93,7 @@
 		80AD03D52C3B3D66006FB6CD /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		80AD03D72C3B3D71006FB6CD /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
 		80AD03D92C3B3DF3006FB6CD /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
+		80AD03EE2C3EB946006FB6CD /* CardComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardComponents.swift; sourceTree = "<group>"; };
 		80B385E82C3548C000639F3A /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -210,17 +208,16 @@
 			isa = PBXGroup;
 			children = (
 				807FBD292C31DDE8001BDBDA /* ContentView.swift */,
-				807FBD642C31E391001BDBDA /* OrderCard.swift */,
 				807FBD622C31E2ED001BDBDA /* CardView.swift */,
 				807FBD5A2C31E292001BDBDA /* OrderListView.swift */,
 				807FBD712C3206B7001BDBDA /* OrderDetailView.swift */,
 				807FBD582C31E272001BDBDA /* HomeView.swift */,
-				807FBD602C31E2DD001BDBDA /* ProductCard.swift */,
 				807FBD5C2C31E2A8001BDBDA /* ProductView.swift */,
 				807FBD732C3208B4001BDBDA /* ProductDetailView.swift */,
 				807FBD5E2C31E2BB001BDBDA /* SettingsView.swift */,
 				807FBD6B2C31E61E001BDBDA /* SearchBar.swift */,
 				807FBD772C321361001BDBDA /* LoadingView.swift */,
+				80AD03EE2C3EB946006FB6CD /* CardComponents.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -407,6 +404,7 @@
 				807FBD672C31E527001BDBDA /* Colors.swift in Sources */,
 				807FBD632C31E2ED001BDBDA /* CardView.swift in Sources */,
 				80AD03DA2C3B3DF3006FB6CD /* KeychainHelper.swift in Sources */,
+				80AD03EF2C3EB946006FB6CD /* CardComponents.swift in Sources */,
 				807FBD5B2C31E292001BDBDA /* OrderListView.swift in Sources */,
 				807FBD782C321361001BDBDA /* LoadingView.swift in Sources */,
 				807FBD572C31DEF3001BDBDA /* WoocommerceService.swift in Sources */,
@@ -421,8 +419,6 @@
 				807FBD802C32E686001BDBDA /* Extensions.swift in Sources */,
 				80B385E92C3548C000639F3A /* Models.swift in Sources */,
 				80AD03D62C3B3D66006FB6CD /* LoginView.swift in Sources */,
-				807FBD652C31E391001BDBDA /* OrderCard.swift in Sources */,
-				807FBD612C31E2DD001BDBDA /* ProductCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

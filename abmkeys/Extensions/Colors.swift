@@ -13,4 +13,7 @@ extension Color {
     static let backgroundColor = Color("BackgroundColor")
     static let cardColor = Color("CardColor")
     static let textColor = Color("TextColor")
+    static let completedColor = Color("CompletedColor")
+    static let pendingColor = Color("PendingColor")
+    static let cancelledColor = Color("CancelledColor")
 }

@@ -24,6 +24,7 @@ struct HomeView: View {
                     latestOrdersSection
                     latestProductsSection
                 }
+                .padding(.horizontal)  // Add padding to the parent container
                 .background(Color.backgroundColor.edgesIgnoringSafeArea(.all))
             }
             .navigationDestination(isPresented: $showOrderDetail) {
@@ -45,13 +46,12 @@ struct HomeView: View {
     private var latestOrdersSection: some View {
         Section(header: Text("Latest Orders").font(.title).padding(.horizontal).foregroundColor(Color.textColor)) {
             ForEach(orders.prefix(4), id: \.id) { order in
-                OrderRow(order: order)
+                OrderCard(order: order)
                     .contentShape(Rectangle())
                     .onTapGesture {
                         selectedOrder = order
                         showOrderDetail = true
                     }
-                    .padding(.horizontal)
             }
         }
     }
@@ -59,12 +59,11 @@ struct HomeView: View {
     private var latestProductsSection: some View {
         Section(header: Text("Latest Products").font(.title).padding(.horizontal).foregroundColor(Color.textColor)) {
             ForEach(latestProducts, id: \.id) { product in
-                ProductRow(product: product)
+                ProductCard(product: product)
                     .contentShape(Rectangle())
                     .onTapGesture {
                         fetchProductDetails(productId: product.id)
                     }
-                    .padding(.horizontal)
             }
         }
     }
@@ -84,43 +83,5 @@ struct HomeView: View {
                 }
             }
         }
-    }
-}
-
-struct OrderRow: View {
-    let order: Order
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Order ID: \(order.id.formatted())")
-                .font(.headline)
-            Text("Status: \(order.status.capitalized)")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(Color.cardColor)
-        .cornerRadius(10)
-        .shadow(radius: 5)
-    }
-}
-
-struct ProductRow: View {
-    let product: Product
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Name: \(product.name)")
-                .font(.headline)
-            Text("Price: \(product.price)")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(Color.cardColor)
-        .cornerRadius(10)
-        .shadow(radius: 5)
     }
 }

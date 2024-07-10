@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 // Represents detailed information about a product
 struct ProductDetail: Codable, Equatable {
@@ -38,6 +39,19 @@ struct Order: Decodable, Equatable {
     let id: Int
     let status: String
     let total: String
+
+    var statusColor: Color {
+        switch status.lowercased() {
+        case "completed":
+            return .completedColor
+        case "pending":
+            return .pendingColor
+        case "cancelled":
+            return .cancelledColor
+        default:
+            return .cardColor
+        }
+    }
 }
 
 // Represents a product
@@ -120,4 +134,3 @@ struct OrderDetails: Decodable {
         phone = try billing.decode(String.self, forKey: .phone)
     }
 }
-
