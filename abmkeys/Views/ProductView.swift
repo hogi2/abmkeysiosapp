@@ -35,7 +35,16 @@ struct ProductView: View {
                     .onEnded { hideKeyboard() }
             )
             .alert(isPresented: $showError) {
-                Alert(title: Text("Error"), message: Text(errorMessage), dismissButton: .default(Text("OK")))
+                Alert(
+                    title: Text("Error"),
+                    message: Text(errorMessage),
+                    primaryButton: .default(Text("Retry")) {
+                        Task {
+                            await fetchProducts()
+                        }
+                    },
+                    secondaryButton: .cancel()
+                )
             }
         }
     }
@@ -52,35 +61,29 @@ struct ProductView: View {
     }
 
     private var productList: some View {
-        List {
-            ForEach(products, id: \.id) { product in
-                VStack(alignment: .leading) {
-                    Text("Name: \(product.name)")
-                        .font(.headline)
-                    Text("Price: \(product.price)")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    Task {
-                        await fetchProductDetails(productId: product.id)
-                    }
-                }
-                .onAppear {
-                    if product == products.last {
-                        Task {
-                            await loadMoreProducts()
+        ScrollView {
+            LazyVStack {
+                ForEach(products, id: \.id) { product in
+                    ProductCard(product: product)
+                        .onTapGesture {
+                            Task {
+                                await fetchProductDetails(productId: product.id)
+                            }
                         }
-                    }
+                        .onAppear {
+                            if product == products.last {
+                                Task {
+                                    await loadMoreProducts()
+                                }
+                            }
+                        }
                 }
-            }
-            if isLoading {
-                ProgressView()
-                    .padding()
+                if isLoading {
+                    ProgressView()
+                        .padding()
+                }
             }
         }
-        .listStyle(PlainListStyle())
         .navigationTitle("All Products")
         .navigationDestination(isPresented: $showProductDetail) {
             if let selectedProduct = selectedProduct {

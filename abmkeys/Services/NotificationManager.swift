@@ -6,11 +6,13 @@
 //
 
 import UserNotifications
+import os.log
 
 class NotificationManager {
     static let shared = NotificationManager()
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "NotificationManager")
 
-    func scheduleOrderCompletionNotification(orderId: Int, orderTotal: String?) {
+    func scheduleOrderCompletionNotification(orderId: Int, orderTotal: String?, completion: ((Result<Void, Error>) -> Void)? = nil) {
         let content = UNMutableNotificationContent()
         content.title = "طلب شراء ناجح"
         if let total = orderTotal {
@@ -18,14 +20,16 @@ class NotificationManager {
         } else {
             content.body = "تهانينا طلب شراء ناجح"
         }
-        content.sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: "earning.mp3"))
+        content.sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: "cash_register.mp3"))
 
         let request = UNNotificationRequest(identifier: "\(orderId)", content: content, trigger: nil)
-        UNUserNotificationCenter.current().add(request) { error in
+        UNUserNotificationCenter.current().add(request) { [weak self] error in
             if let error = error {
-                print("Error scheduling notification: \(error)")
+                self?.logger.error("Error scheduling notification: \(error.localizedDescription)")
+                completion?(.failure(error))
             } else {
-                print("Notification scheduled for order \(orderId)")
+                self?.logger.info("Notification scheduled for order \(orderId)")
+                completion?(.success(()))
             }
         }
     }

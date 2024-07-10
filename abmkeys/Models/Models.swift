@@ -7,6 +7,7 @@
 
 import Foundation
 
+// Represents detailed information about a product
 struct ProductDetail: Codable, Equatable {
     let id: Int
     let name: String
@@ -16,59 +17,42 @@ struct ProductDetail: Codable, Equatable {
     let imageUrl: [ImageUrl]?
 
     enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case price
-        case description
-        case categories
+        case id, name, price, description, categories
         case imageUrl = "images"
-    }
-
-    static func == (lhs: ProductDetail, rhs: ProductDetail) -> Bool {
-        return lhs.id == rhs.id
     }
 }
 
+// Represents a product category
 struct Category: Codable, Equatable {
     let id: Int
     let name: String
-
-    static func == (lhs: Category, rhs: Category) -> Bool {
-        return lhs.id == rhs.id
-    }
 }
 
+// Represents an image URL
 struct ImageUrl: Codable, Equatable {
     let src: String
-
-    static func == (lhs: ImageUrl, rhs: ImageUrl) -> Bool {
-        return lhs.src == rhs.src
-    }
 }
 
+// Represents an order
 struct Order: Decodable, Equatable {
     let id: Int
     let status: String
     let total: String
-
-    static func == (lhs: Order, rhs: Order) -> Bool {
-        return lhs.id == rhs.id
-    }
 }
 
+// Represents a product
 struct Product: Decodable, Equatable {
     let id: Int
     let name: String
     let price: String
-
-    static func == (lhs: Product, rhs: Product) -> Bool {
-        return lhs.id == rhs.id
-    }
 }
 
+// Represents a sales report
 struct SalesReport: Decodable {
     let totalSales: String
 }
+
+// Represents detailed information about an order
 
 struct OrderDetails: Decodable {
     let id: Int
@@ -78,7 +62,7 @@ struct OrderDetails: Decodable {
     let customerName: String
     let email: String
     let phone: String
-    let orderNotes: String?
+    var orderNotes: [OrderNote] // Changed from let to var
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -86,7 +70,7 @@ struct OrderDetails: Decodable {
         case total
         case items = "line_items"
         case billing
-        case orderNotes = "customer_note"
+        case orderNotes = "order_notes" // Ensure this matches the actual key in your JSON response
     }
 
     enum BillingKeys: String, CodingKey {
@@ -110,17 +94,30 @@ struct OrderDetails: Decodable {
         let phone: String
     }
 
+    struct OrderNote: Decodable, Identifiable {
+        let id: Int
+        let note: String
+
+        enum CodingKeys: String, CodingKey {
+            case id
+            case note
+        }
+    }
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(Int.self, forKey: .id)
         status = try container.decode(String.self, forKey: .status)
         total = try container.decode(String.self, forKey: .total)
         items = try container.decode([OrderItem].self, forKey: .items)
-        orderNotes = try container.decodeIfPresent(String.self, forKey: .orderNotes) ?? ""
+        orderNotes = try container.decodeIfPresent([OrderNote].self, forKey: .orderNotes) ?? []
 
         let billing = try container.nestedContainer(keyedBy: BillingKeys.self, forKey: .billing)
-        customerName = "\(try billing.decode(String.self, forKey: .firstName)) \(try billing.decode(String.self, forKey: .lastName))"
+        let firstName = try billing.decode(String.self, forKey: .firstName)
+        let lastName = try billing.decode(String.self, forKey: .lastName)
+        customerName = "\(firstName) \(lastName)"
         email = try billing.decode(String.self, forKey: .email)
         phone = try billing.decode(String.self, forKey: .phone)
     }
 }
+

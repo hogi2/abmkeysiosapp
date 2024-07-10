@@ -20,24 +20,36 @@ struct OrderListView: View {
 
     var body: some View {
         NavigationStack {
-            VStack {
-                searchBar
-                orderSummary
-                if orders.isEmpty && !isLoading {
-                    Text("No orders found")
-                        .foregroundColor(.gray)
-                        .padding()
-                } else {
-                    ordersList
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    searchBar
+                    orderSummary
+                    if orders.isEmpty && !isLoading {
+                        Text("No orders found")
+                            .foregroundColor(.gray)
+                            .padding()
+                    } else {
+                        ordersList
+                    }
+                }
+                .background(Color.backgroundColor.edgesIgnoringSafeArea(.all))
+            }
+            .navigationDestination(isPresented: $showOrderDetail) {
+                if let selectedOrder = selectedOrder {
+                    OrderDetailView(orderId: selectedOrder.id)
                 }
             }
-            .background(Color.backgroundColor.edgesIgnoringSafeArea(.all))
-            .gesture(
-                TapGesture()
-                    .onEnded { hideKeyboard() }
-            )
             .alert(isPresented: $showError) {
-                Alert(title: Text("Error"), message: Text(errorMessage), dismissButton: .default(Text("OK")))
+                Alert(
+                    title: Text("Error"),
+                    message: Text(errorMessage),
+                    primaryButton: .default(Text("Retry")) {
+                        Task {
+                            await fetchOrders()
+                        }
+                    },
+                    secondaryButton: .cancel()
+                )
             }
         }
     }
@@ -45,7 +57,7 @@ struct OrderListView: View {
     private var searchBar: some View {
         SearchBar(text: $searchText)
             .padding(.horizontal)
-            .onChange(of: searchText) { _ in
+            .onChange(of: searchText) { newValue in
                 resetOrders()
                 Task {
                     await fetchOrders()
@@ -65,7 +77,7 @@ struct OrderListView: View {
                 Text("Canceled").tag("canceled")
             }
             .pickerStyle(MenuPickerStyle())
-            .onChange(of: selectedFilter) { _ in
+            .onChange(of: selectedFilter) { newValue in
                 resetOrders()
                 Task {
                     await fetchOrders()
@@ -76,13 +88,15 @@ struct OrderListView: View {
     }
 
     private var ordersList: some View {
-        List {
+        Section(header: Text("Orders").font(.title).padding(.horizontal).foregroundColor(Color.textColor)) {
             ForEach(orders, id: \.id) { order in
-                OrderCard(order: order)
+                OrderRow(order: order)
+                    .contentShape(Rectangle())
                     .onTapGesture {
                         selectedOrder = order
                         showOrderDetail = true
                     }
+                    .padding(.horizontal)
                     .onAppear {
                         if order == orders.last {
                             loadMoreOrders()
@@ -93,15 +107,6 @@ struct OrderListView: View {
                 ProgressView()
                     .padding()
             }
-        }
-        .listStyle(PlainListStyle())
-        .refreshable {
-            resetOrders()
-            await fetchOrders()
-        }
-        .navigationTitle("All Orders")
-        .navigationDestination(isPresented: $showOrderDetail) {
-            OrderDetailView(orderId: selectedOrder?.id ?? 0)
         }
     }
 

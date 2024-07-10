@@ -24,36 +24,25 @@ struct ContentView: View {
                         }
                     }
             } else {
-                TabView {
-                    HomeView(orders: $orders, latestProducts: $latestProducts)
-                        .tabItem {
-                            Label("Home", systemImage: "house")
+                MainTabView(orders: $orders, latestProducts: $latestProducts)
+                    .onAppear {
+                        Task {
+                            await checkForCompletedOrders()
                         }
-
-                    OrderListView(orders: $orders)
-                        .tabItem {
-                            Label("Orders", systemImage: "list.bullet")
-                        }
-
-                    ProductView(products: $latestProducts)
-                        .tabItem {
-                            Label("Products", systemImage: "cart")
-                        }
-
-                    SettingsView()
-                        .tabItem {
-                            Label("Settings", systemImage: "gear")
-                        }
-                }
-                .onAppear {
-                    Task {
-                        await checkForCompletedOrders()
                     }
-                }
             }
         }
         .alert(isPresented: $showError) {
-            Alert(title: Text("Error"), message: Text(errorMessage), dismissButton: .default(Text("OK")))
+            Alert(
+                title: Text("Error"),
+                message: Text(errorMessage),
+                primaryButton: .default(Text("Retry")) {
+                    Task {
+                        await checkLoginAndFetchData()
+                    }
+                },
+                secondaryButton: .cancel()
+            )
         }
     }
 
@@ -95,5 +84,50 @@ struct ContentView: View {
             showError = true
             errorMessage = error.localizedDescription
         }
+    }
+}
+
+struct MainTabView: View {
+    @Binding var orders: [Order]
+    @Binding var latestProducts: [Product]
+
+    var body: some View {
+        TabView {
+            HomeView(orders: $orders, latestProducts: $latestProducts)
+                .tabItem {
+                    Label("Home", systemImage: "house")
+                }
+
+            OrderListView(orders: $orders)
+                .tabItem {
+                    Label("Orders", systemImage: "list.bullet")
+                }
+
+            ProductView(products: $latestProducts)
+                .tabItem {
+                    Label("Products", systemImage: "cart")
+                }
+
+            SettingsView()
+                .tabItem {
+                    Label("Settings", systemImage: "gear")
+                }
+        }
+    }
+}
+
+// Preview providers for Xcode previews
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
+
+struct MainTabView_Previews: PreviewProvider {
+    @State static var orders: [Order] = []
+    @State static var latestProducts: [Product] = []
+
+    static var previews: some View {
+        MainTabView(orders: $orders, latestProducts: $latestProducts)
     }
 }

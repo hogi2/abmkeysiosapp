@@ -44,12 +44,16 @@ struct OrderDetailView: View {
                             }
                         }
 
-                        if let notes = details.orderNotes, !notes.isEmpty {
+                        if !details.orderNotes.isEmpty {
                             SectionView(header: "Order Notes") {
-                                Text(notes)
-                                    .padding()
-                                    .background(Color.cardColor)
-                                    .cornerRadius(10)
+                                VStack(alignment: .leading, spacing: 10) {
+                                    ForEach(details.orderNotes) { note in
+                                        Text(note.note)
+                                            .padding()
+                                            .background(Color.cardColor)
+                                            .cornerRadius(10)
+                                    }
+                                }
                             }
                         }
                     }
@@ -67,7 +71,16 @@ struct OrderDetailView: View {
         .navigationTitle("Order #\(orderId.formatted())")
         .background(Color.backgroundColor.edgesIgnoringSafeArea(.all))
         .alert(isPresented: $showError) {
-            Alert(title: Text("Error"), message: Text(errorMessage), dismissButton: .default(Text("OK")))
+            Alert(
+                title: Text("Error"),
+                message: Text(errorMessage),
+                primaryButton: .default(Text("Retry")) {
+                    Task {
+                        await fetchOrderDetails()
+                    }
+                },
+                secondaryButton: .cancel()
+            )
         }
     }
 

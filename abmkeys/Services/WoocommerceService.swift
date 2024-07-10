@@ -9,26 +9,34 @@ import Foundation
 
 class WooCommerceService {
     static var credentials: WooCommerceCredentials?
+    private let baseUrl = "https://www.abmkeys.com/wp-json/wc/v3"
 
-    let baseUrl = "https://www.abmkeys.com/wp-json/wc/v3"
+    private enum Endpoint: String {
+        case orders = "orders"
+        case products = "products"
+        case notes = "notes"
+    }
 
-    private func makeURL(endpoint: String, parameters: [String: String]) -> URL? {
+    private func makeURL(endpoint: Endpoint, parameters: [String: String] = [:], id: Int? = nil) -> URL? {
         guard let credentials = WooCommerceService.credentials else { return nil }
 
-        var urlComponents = URLComponents(string: "\(baseUrl)/\(endpoint)")
+        var urlString = "\(baseUrl)/\(endpoint.rawValue)"
+        if let id = id {
+            urlString += "/\(id)"
+        }
+        var urlComponents = URLComponents(string: urlString)
         var queryItems = [
             URLQueryItem(name: "consumer_key", value: credentials.consumerKey),
             URLQueryItem(name: "consumer_secret", value: credentials.consumerSecret)
         ]
 
-        for (key, value) in parameters {
-            queryItems.append(URLQueryItem(name: key, value: value))
-        }
-
+        parameters.forEach { queryItems.append(URLQueryItem(name: $0.key, value: $0.value)) }
         urlComponents?.queryItems = queryItems
+
         #if DEBUG
         print("API URL: \(urlComponents?.url?.absoluteString ?? "Invalid URL")")
         #endif
+
         return urlComponents?.url
     }
 
@@ -46,97 +54,66 @@ class WooCommerceService {
         #endif
     }
 
+    private func fetchData<T: Decodable>(from url: URL) async throws -> T {
+        let (data, response) = try await URLSession.shared.data(from: url)
+        logResponse(data, response, nil)
+
+        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+            throw URLError(.badServerResponse)
+        }
+
+        do {
+            return try JSONDecoder().decode(T.self, from: data)
+        } catch {
+            print("Failed to decode JSON: \(error.localizedDescription)")
+            logResponse(data, response, error)
+            throw error
+        }
+    }
+
     func getOrders(page: Int, search: String, status: String? = nil) async throws -> [Order] {
         var parameters: [String: String] = ["page": "\(page)", "search": search]
         if let status = status {
             parameters["status"] = status
         }
-
-        guard let url = makeURL(endpoint: "orders", parameters: parameters) else {
+        
+        guard let url = makeURL(endpoint: .orders, parameters: parameters) else {
             throw URLError(.badURL)
         }
 
-        let (data, response) = try await URLSession.shared.data(from: url)
-        logResponse(data, response, nil)
-
-        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
-            throw URLError(.badServerResponse)
-        }
-
-        do {
-            let orders = try JSONDecoder().decode([Order].self, from: data)
-            return orders
-        } catch {
-            print("Failed to decode JSON for orders: \(error.localizedDescription)")
-            logResponse(data, response, error)
-            throw error
-        }
+        return try await fetchData(from: url)
     }
 
     func getProducts(page: Int, search: String) async throws -> [Product] {
-        guard let url = makeURL(endpoint: "products", parameters: ["page": "\(page)", "search": search]) else {
+        guard let url = makeURL(endpoint: .products, parameters: ["page": "\(page)", "search": search]) else {
             throw URLError(.badURL)
         }
 
-        let (data, response) = try await URLSession.shared.data(from: url)
-        logResponse(data, response, nil)
-
-        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
-            throw URLError(.badServerResponse)
-        }
-
-        do {
-            let products = try JSONDecoder().decode([Product].self, from: data)
-            return products
-        } catch {
-            print("Failed to decode JSON for products: \(error.localizedDescription)")
-            logResponse(data, response, error)
-            throw error
-        }
+        return try await fetchData(from: url)
     }
 
     func getProductDetails(productId: Int) async throws -> ProductDetail {
-        guard let url = makeURL(endpoint: "products/\(productId)", parameters: [:]) else {
+        guard let url = makeURL(endpoint: .products, id: productId) else {
             throw URLError(.badURL)
         }
 
-        let (data, response) = try await URLSession.shared.data(from: url)
-        logResponse(data, response, nil)
-
-        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
-            throw URLError(.badServerResponse)
-        }
-
-        do {
-            let productDetail = try JSONDecoder().decode(ProductDetail.self, from: data)
-            return productDetail
-        } catch {
-            print("Failed to decode JSON for product details: \(error.localizedDescription)")
-            logResponse(data, response, error)
-            throw error
-        }
+        return try await fetchData(from: url)
     }
 
     func getOrderDetails(orderId: Int) async throws -> OrderDetails {
-        guard let url = makeURL(endpoint: "orders/\(orderId)", parameters: [:]) else {
+        guard let url = makeURL(endpoint: .orders, id: orderId) else {
             throw URLError(.badURL)
         }
 
-        let (data, response) = try await URLSession.shared.data(from: url)
-        logResponse(data, response, nil)
+        var orderDetails: OrderDetails = try await fetchData(from: url)
 
-        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
-            throw URLError(.badServerResponse)
+        // Fetch order notes
+        if let notesURL = makeURL(endpoint: .orders, id: orderId)?.appendingPathComponent("notes") {
+            let orderNotes: [OrderDetails.OrderNote] = try await fetchData(from: notesURL)
+            orderDetails.orderNotes = orderNotes
         }
 
-        do {
-            let orderDetails = try JSONDecoder().decode(OrderDetails.self, from: data)
-            return orderDetails
-        } catch {
-            print("Failed to decode JSON for order details: \(error.localizedDescription)")
-            logResponse(data, response, error)
-            throw error
-        }
+        return orderDetails
     }
 
     func checkForCompletedOrders(previousOrders: [Order]) async throws {
@@ -154,4 +131,3 @@ class WooCommerceService {
         }
     }
 }
-
