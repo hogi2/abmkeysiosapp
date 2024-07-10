@@ -110,6 +110,9 @@ struct OrderListView: View {
                         .padding()
                 }
             }
+            .refreshable {
+                await refreshOrders()
+            }
         }
     }
 
@@ -124,24 +127,29 @@ struct OrderListView: View {
         do {
             let statusFilter = selectedFilter == "all" ? nil : selectedFilter
             if let status = statusFilter {
-                print("Fetching orders with status: \(status)") // Add this line
+                print("Fetching orders with status: \(status)")
             }
             let fetchedOrders = try await WooCommerceService().getOrders(page: currentPage, search: searchText, status: statusFilter)
             self.orders += fetchedOrders
         } catch {
             showError = true
             errorMessage = error.localizedDescription
-            print("Error fetching orders: \(error.localizedDescription)") // Add this line
+            print("Error fetching orders: \(error.localizedDescription)")
         }
         isLoading = false
     }
-
 
     private func loadMoreOrders() {
         currentPage += 1
         Task {
             await fetchOrders()
         }
+    }
+
+    @MainActor
+    private func refreshOrders() async {
+        resetOrders()
+        await fetchOrders()
     }
 
     private func hideKeyboard() {

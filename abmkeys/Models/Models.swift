@@ -68,9 +68,10 @@ struct SalesReport: Decodable {
 
 // Represents detailed information about an order
 
+// Represents detailed information about an order
 struct OrderDetails: Decodable {
     let id: Int
-    let status: String
+    var status: String // Change from let to var
     let total: String
     let items: [OrderItem]
     let customerName: String

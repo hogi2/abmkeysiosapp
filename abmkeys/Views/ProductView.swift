@@ -88,6 +88,9 @@ struct ProductView: View {
                         .padding()
                 }
             }
+            .refreshable {
+                await refreshProducts()
+            }
         }
     }
 
@@ -123,6 +126,12 @@ struct ProductView: View {
     @MainActor
     private func loadMoreProducts() async {
         currentPage += 1
+        await fetchProducts()
+    }
+
+    @MainActor
+    private func refreshProducts() async {
+        resetProducts()
         await fetchProducts()
     }
 

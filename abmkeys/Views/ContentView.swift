@@ -108,7 +108,7 @@ struct MainTabView: View {
                     Label("Products", systemImage: "cart")
                 }
 
-            SettingsView()
+            SettingsView() // Ensure SettingsView is included here
                 .tabItem {
                     Label("Settings", systemImage: "gear")
                 }

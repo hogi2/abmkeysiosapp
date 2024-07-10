@@ -13,6 +13,9 @@ struct OrderDetailView: View {
     @State private var isLoading = true
     @State private var showError = false
     @State private var errorMessage = ""
+    @State private var selectedStatus: String = ""
+    @State private var showStatusActionSheet = false
+    @State private var showConfirmationAlert = false
 
     var body: some View {
         VStack {
@@ -36,6 +39,45 @@ struct OrderDetailView: View {
                         SectionView(header: "Billing Info") {
                             DetailRow(label: "Total", value: Double(details.total)?.formattedAsCurrency() ?? details.total)
                             DetailRow(label: "Status", value: details.status.capitalized)
+                        }
+
+                        Button(action: {
+                            showStatusActionSheet = true
+                        }) {
+                            Text("Change Status")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .padding()
+                                .background(Color.blue)
+                                .cornerRadius(10)
+                        }
+                        .padding()
+                        .actionSheet(isPresented: $showStatusActionSheet) {
+                            ActionSheet(
+                                title: Text("Change Order Status"),
+                                buttons: [
+                                    .default(Text("Pending")) { selectedStatus = "pending"; showConfirmationAlert = true },
+                                    .default(Text("Processing")) { selectedStatus = "processing"; showConfirmationAlert = true },
+                                    .default(Text("On Hold")) { selectedStatus = "on-hold"; showConfirmationAlert = true },
+                                    .default(Text("Completed")) { selectedStatus = "completed"; showConfirmationAlert = true },
+                                    .default(Text("Cancelled")) { selectedStatus = "cancelled"; showConfirmationAlert = true },
+                                    .default(Text("Refunded")) { selectedStatus = "refunded"; showConfirmationAlert = true },
+                                    .default(Text("Failed")) { selectedStatus = "failed"; showConfirmationAlert = true },
+                                    .cancel()
+                                ]
+                            )
+                        }
+                        .alert(isPresented: $showConfirmationAlert) {
+                            Alert(
+                                title: Text("Confirm Status Change"),
+                                message: Text("Are you sure you want to change the status to \(selectedStatus.capitalized)?"),
+                                primaryButton: .default(Text("Yes")) {
+                                    Task {
+                                        await updateOrderStatus()
+                                    }
+                                },
+                                secondaryButton: .cancel()
+                            )
                         }
 
                         SectionView(header: "Order Items") {
@@ -88,11 +130,27 @@ struct OrderDetailView: View {
     private func fetchOrderDetails() async {
         do {
             orderDetails = try await WooCommerceService().getOrderDetails(orderId: orderId)
+            if let details = orderDetails {
+                selectedStatus = details.status
+            }
         } catch {
             showError = true
             errorMessage = error.localizedDescription
         }
         isLoading = false
+    }
+
+    @MainActor
+    private func updateOrderStatus() async {
+        do {
+            guard var details = orderDetails else { return }
+            try await WooCommerceService().updateOrderStatus(orderId: details.id, newStatus: selectedStatus)
+            details.status = selectedStatus
+            orderDetails = details
+        } catch {
+            showError = true
+            errorMessage = error.localizedDescription
+        }
     }
 }
 

@@ -8,11 +8,23 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @State private var enableNotifications = true
+
     var body: some View {
         NavigationView {
             Form {
                 Section(header: Text("Notifications")) {
-                    Toggle("Enable Notifications", isOn: .constant(true))
+                    Toggle("Enable Notifications", isOn: $enableNotifications)
+                    Button("Schedule Test Notification") {
+                        NotificationManager.shared.scheduleOrderCompletionNotification(orderId: 123, orderTotal: "$99.99") { result in
+                            switch result {
+                            case .success:
+                                print("Notification scheduled successfully")
+                            case .failure(let error):
+                                print("Failed to schedule notification: \(error.localizedDescription)")
+                            }
+                        }
+                    }
                 }
                 Section(header: Text("Account")) {
                     Button("Logout") {
